@@ -1,0 +1,17 @@
+{
+  "name": "move-timer",
+  "version": "0.0.1",
+  "description": "An Electron based menu app for the 20-8-2 timer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Caza",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^16.0.5"
+  },
+  "dependencies": {
+    "menubar": "^9.1.1"
+  }
+}
