@@ -4,7 +4,7 @@
   "description": "An Electron based menu app for the 20-8-2 timer",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npx electron index.js"
   },
   "author": "Alex Caza",
   "license": "ISC",

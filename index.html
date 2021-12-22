@@ -1,1 +1,57 @@
-<h1>Hello world</h1>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "San Francisco", "Helvetica", "Arial", sans-serif;
+    display: flex;
+    flex-direction: column;
+    padding: 40px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 72px;
+    padding-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 64px;
+  }
+
+  button {
+    color: white;
+    background: grey;
+    font-size: 36px;
+    outline: none;
+    border: none;
+    padding: 5px;
+    margin: 10px;
+  }
+</style>
+
+<h1 id="timer"></h1>
+<h2 id="phase"></h2>
+<button id="toggle">Pause</button>
+
+<script>
+  var ipc = require("electron").ipcRenderer;
+  ipc.on("timer-updated", (_, { time, phase }) => {
+    document.getElementById("timer").innerText = time;
+    document.getElementById("phase").innerText = phase.toUpperCase();
+  });
+
+  const btn = document.getElementById("toggle");
+  btn.addEventListener("click", () => {
+    if (btn.innerText === "Pause") {
+      btn.innerText = "Start";
+      ipc.send("TOGGLE_TIMER", "paused");
+    } else {
+      btn.innerText = "Pause";
+      ipc.send("TOGGLE_TIMER", "started");
+    }
+  });
+</script>
