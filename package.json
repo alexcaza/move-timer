@@ -4,12 +4,14 @@
   "description": "An Electron based menu app for the 20-8-2 timer",
   "main": "index.js",
   "scripts": {
-    "dev": "npx electron index.js"
+    "dev": "npx electron index.js",
+    "build": "npx electron-packager ./ move-timer --platform=\"$npm_config_platform\" --out=dist --overwrite"
   },
   "author": "Alex Caza",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^16.0.5"
+    "electron": "^16.0.5",
+    "electron-packager": "^15.4.0"
   },
   "dependencies": {
     "menubar": "^9.1.1"
