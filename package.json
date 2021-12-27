@@ -1,11 +1,12 @@
 {
   "name": "move-timer",
+  "productName": "Move Timer",
   "version": "0.0.1",
   "description": "An Electron based menu app for the 20-8-2 timer",
   "main": "index.js",
   "scripts": {
     "dev": "npx electron index.js",
-    "build": "npx electron-packager ./ move-timer --platform=\"$npm_config_platform\" --out=dist --overwrite"
+    "build": "rm -rf dist && npx electron-packager ./ --platform=\"$npm_config_platform\" --arch=\"$npm_config_arch\" --out=dist --overwrite"
   },
   "author": "Alex Caza",
   "license": "ISC",
