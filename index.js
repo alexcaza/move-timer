@@ -44,7 +44,6 @@ const startTimer = (tray, mb) => {
     const minutes = pad(Math.floor(time / 60));
     const seconds = pad(time % 60);
     currentTimeFormatted = `${minutes}:${seconds}`;
-    console.log("Current time formatted: ", currentTimeFormatted);
 
     const newDashArraySize = setCircleDashArray(time, intervals[position]);
 
@@ -67,11 +66,15 @@ const startTimer = (tray, mb) => {
 };
 
 app.whenReady().then(() => {
-  const tray = new Tray(process.cwd() + "/clock-20px.png");
+  const tray = new Tray(
+    !app.isPackaged
+      ? process.cwd() + "/clock-20px.png"
+      : process.resourcesPath + "/app/clock-20px.png"
+  );
 
   const mb = menubar({
     tooltip: "20 minutes",
-    icon: "clock-20px.png",
+    icon: "assets/clock-20px.png",
     tray,
     browserWindow: {
       webPreferences: { nodeIntegration: true, contextIsolation: false },
