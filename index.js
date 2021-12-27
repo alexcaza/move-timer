@@ -22,11 +22,7 @@ const setCircleDashArray = (timeLeft, maxTime) => {
 
 // Main timer logic
 const startTimer = (tray, mb) => {
-  //   const SIT = 1200;
-  //   const STAND = 480;
-  //   const WALK = 120;
-
-  const SIT = 10;
+  const SIT = 1200;
   const STAND = 480;
   const WALK = 120;
   const intervals = [SIT, STAND, WALK];
