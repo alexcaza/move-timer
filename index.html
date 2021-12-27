@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
     <style>
       * {
         margin: 0;
@@ -13,9 +9,10 @@
 
       body {
         font-family: "San Francisco", "Helvetica", "Arial", sans-serif;
+        color: #6b818c;
         display: flex;
         flex-direction: column;
-        padding: 10px 40px;
+        padding: 15px 40px 10px 40px;
         justify-content: center;
         align-items: center;
       }
@@ -39,21 +36,31 @@
 
       h1 {
         font-size: 72px;
-        padding-bottom: 10px;
+        padding-bottom: 15px;
       }
 
       h2 {
-        font-size: 48px;
+        font-size: 40px;
       }
 
       button {
-        color: white;
-        background: grey;
-        font-size: 36px;
         outline: none;
         border: none;
-        padding: 5px;
-        margin: 10px;
+        padding: 10px;
+        background: none;
+      }
+
+      button:hover {
+        cursor: pointer;
+      }
+
+      #toggle svg {
+        height: 48px;
+        width: 48px;
+      }
+
+      button path {
+        fill: #6e4555;
       }
 
       .base-timer {
@@ -73,7 +80,7 @@
 
       .base-timer__path-elapsed {
         stroke-width: 7px;
-        stroke: grey;
+        stroke: #eee5e9;
       }
 
       .base-timer__path-remaining {
@@ -120,7 +127,16 @@
       </div>
     </div>
 
-    <button id="toggle">Pause</button>
+    <button id="toggle" class="started">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+      >
+        <path d="M11 22h-4v-20h4v20zm6-20h-4v20h4v-20z" />
+      </svg>
+    </button>
 
     <script>
       var ipc = require("electron").ipcRenderer;
@@ -134,11 +150,23 @@
 
       const btn = document.getElementById("toggle");
       btn.addEventListener("click", () => {
-        if (btn.innerText === "Pause") {
-          btn.innerText = "Start";
+        if (btn.classList.contains("started")) {
+          btn.classList.add("paused");
+          btn.classList.remove("started");
+          btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M3 22v-20l18 10-18 10z"/>
+          </svg>
+          `;
           ipc.send("TOGGLE_TIMER", "paused");
         } else {
-          btn.innerText = "Pause";
+          btn.classList.add("started");
+          btn.classList.remove("paused");
+          btn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M11 22h-4v-20h4v20zm6-20h-4v20h4v-20z"/>
+          </svg>
+          `;
           ipc.send("TOGGLE_TIMER", "started");
         }
       });
