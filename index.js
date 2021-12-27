@@ -1,10 +1,15 @@
 const { menubar } = require("menubar");
-const { app, BrowserWindow, Tray, ipcMain } = require("electron");
+const { app, Tray, ipcMain } = require("electron");
 
+// Global state
 let intervalRef;
+let previousDelta;
+let previousPosition;
 
+// Helper func
 const pad = (number) => (number < 10 ? `0${number}` : number);
 
+// Main timer logic
 const startTimer = (tray, mb) => {
   const SIT = 1200;
   const STAND = 480;
@@ -12,14 +17,17 @@ const startTimer = (tray, mb) => {
   const intervals = [SIT, STAND, WALK];
   const phases = ["sit", "stand", "walk"];
 
-  let position = 0;
-  let start = Date.now();
+  let position = previousPosition || 0;
+  let start = previousDelta ? Date.now() - previousDelta : Date.now();
   let time = intervals[position];
 
   return setInterval(() => {
     let currentTimeFormatted;
     const delta = Date.now() - start; // milliseconds elapsed since start
     const timeNow = Math.floor(delta / 1000); // in seconds
+
+    previousPosition = position;
+    previousDelta = delta;
     time = intervals[position] - timeNow;
 
     const minutes = pad(Math.floor(time / 60));
@@ -30,6 +38,7 @@ const startTimer = (tray, mb) => {
     if (time < 1) {
       position + 1 < intervals.length ? position++ : (position = 0);
       time = intervals[position];
+      previousDelta = null;
       start = Date.now();
     }
 
@@ -63,7 +72,6 @@ app.whenReady().then(() => {
 
   ipcMain.on("TOGGLE_TIMER", (_, data) => {
     if (data === "paused") {
-      // TODO: Store previous time somewhere to start countdown back up correctly
       clearInterval(intervalRef);
     } else {
       intervalRef = startTimer(tray, mb);
