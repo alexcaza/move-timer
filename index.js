@@ -8,10 +8,25 @@ let previousPosition;
 
 // Helper func
 const pad = (number) => (number < 10 ? `0${number}` : number);
+const calculateTimeFraction = (timeLeft, maxTime) => {
+  const rawTimeFraction = timeLeft / maxTime;
+  return rawTimeFraction - (1 / maxTime) * (1 - rawTimeFraction);
+};
+const setCircleDashArray = (timeLeft, maxTime) => {
+  const FULL_DASH_ARRAY = 283;
+  const circleDasharray = `${(
+    calculateTimeFraction(timeLeft, maxTime) * FULL_DASH_ARRAY
+  ).toFixed(0)} ${FULL_DASH_ARRAY}`;
+  return circleDasharray;
+};
 
 // Main timer logic
 const startTimer = (tray, mb) => {
-  const SIT = 1200;
+  //   const SIT = 1200;
+  //   const STAND = 480;
+  //   const WALK = 120;
+
+  const SIT = 10;
   const STAND = 480;
   const WALK = 120;
   const intervals = [SIT, STAND, WALK];
@@ -35,6 +50,8 @@ const startTimer = (tray, mb) => {
     currentTimeFormatted = `${minutes}:${seconds}`;
     console.log("Current time formatted: ", currentTimeFormatted);
 
+    const newDashArraySize = setCircleDashArray(time, intervals[position]);
+
     if (time < 1) {
       position + 1 < intervals.length ? position++ : (position = 0);
       time = intervals[position];
@@ -47,6 +64,7 @@ const startTimer = (tray, mb) => {
       mb.window.webContents.send("timer-updated", {
         time: currentTimeFormatted,
         phase: phases[position],
+        circleDashArray: newDashArraySize,
       });
     }
   }, 1000);
@@ -61,6 +79,7 @@ app.whenReady().then(() => {
     tray,
     browserWindow: {
       webPreferences: { nodeIntegration: true, contextIsolation: false },
+      alwaysOnTop: true,
     },
   });
 
