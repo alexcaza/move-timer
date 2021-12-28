@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx electron index.js",
-    "build": "rm -rf dist && npx electron-packager ./ --platform=\"$npm_config_platform\" --arch=\"$npm_config_arch\" --out=dist --overwrite"
+    "build": "rm -rf dist && npx electron-packager ./ --platform=\"$npm_config_platform\" --arch=\"$npm_config_arch\" --out=dist --overwrite --icon=move-timer-icon.png"
   },
   "author": "Alex Caza",
   "license": "ISC",
