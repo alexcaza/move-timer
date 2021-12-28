@@ -1,4 +1,4 @@
-# move-timer
+# Move Timer
 
 An Electron based menu app for the 20-8-2 timer
 
@@ -12,9 +12,9 @@ I wanted a timer on my computer that would help remind me to switch between posi
 
 # TODO
 
-[] Break out states into own file with better structure
-[] Share state with renderer in a clearer way
-[] Split up index.html into proper files
-[] Add sounds + sound toggle
-[] Add quit button
-[] Start tracking stats and write out to file along with settings
+- [ ] Break out states into own file with better structure
+- [ ] Share state with renderer in a clearer way
+- [ ] Split up index.html into proper files
+- [ ] Add sounds + sound toggle
+- [ ] Add quit button
+- [ ] Start tracking stats and write out to file along with settings
