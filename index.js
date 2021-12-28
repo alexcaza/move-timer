@@ -1,33 +1,69 @@
 const { menubar } = require("menubar");
-const { app, Tray, ipcMain } = require("electron");
+const { app, Tray, ipcMain, BrowserWindow } = require("electron");
+const { setCircleDashArray, pad } = require("./helpers");
 
 // Global state
 let intervalRef;
 let previousDelta;
 let previousPosition;
 
-// Helper func
-const pad = (number) => (number < 10 ? `0${number}` : number);
-const calculateTimeFraction = (timeLeft, maxTime) => {
-  const rawTimeFraction = timeLeft / maxTime;
-  return rawTimeFraction - (1 / maxTime) * (1 - rawTimeFraction);
+// Global constants
+const SIT = 1200;
+const STAND = 480;
+const WALK = 120;
+const intervals = [SIT, STAND, WALK];
+const phases = ["sit", "stand", "walk"];
+
+// Startup function
+const onStart = (tray, mb) => {
+  const time = intervals[0];
+  const minutes = pad(Math.floor(time / 60));
+  const seconds = pad(time % 60);
+  currentTimeFormatted = `${minutes}:${seconds}`;
+  tray.setTitle(" " + currentTimeFormatted);
+  if (mb && mb.window && mb.window.webContents) {
+    mb.window.webContents.send("timer-updated", {
+      time: currentTimeFormatted,
+      phase: phases[0],
+      circleDashArray: 283,
+    });
+  }
 };
-const setCircleDashArray = (timeLeft, maxTime) => {
-  const FULL_DASH_ARRAY = 283;
-  const circleDasharray = `${(
-    calculateTimeFraction(timeLeft, maxTime) * FULL_DASH_ARRAY
-  ).toFixed(0)} ${FULL_DASH_ARRAY}`;
-  return circleDasharray;
+
+// Window logic
+const mainWindow = () => {
+  const icon = "/clock-white@2x.png";
+  const tray = new Tray(
+    !app.isPackaged
+      ? `${process.cwd()}${icon}`
+      : `${process.resourcesPath}/app${icon}`
+  );
+
+  const mb = menubar({
+    tooltip: "20 minutes",
+    icon: "assets/clock-20px.png",
+    tray,
+    preloadWindow: true,
+    browserWindow: {
+      webPreferences: { nodeIntegration: true, contextIsolation: false },
+    },
+  });
+
+  mb.setOption("webPreferences.nodeIntegration", true);
+
+  onStart(tray, mb);
+
+  ipcMain.on("TOGGLE_TIMER", (_, data) => {
+    if (data === "paused") {
+      clearInterval(intervalRef);
+    } else {
+      intervalRef = startTimer(tray, mb);
+    }
+  });
 };
 
 // Main timer logic
 const startTimer = (tray, mb) => {
-  const SIT = 1200;
-  const STAND = 480;
-  const WALK = 120;
-  const intervals = [SIT, STAND, WALK];
-  const phases = ["sit", "stand", "walk"];
-
   let position = previousPosition || 0;
   let start = previousDelta ? Date.now() - previousDelta : Date.now();
   let time = intervals[position];
@@ -47,14 +83,7 @@ const startTimer = (tray, mb) => {
 
     const newDashArraySize = setCircleDashArray(time, intervals[position]);
 
-    if (time < 1) {
-      position + 1 < intervals.length ? position++ : (position = 0);
-      time = intervals[position];
-      previousDelta = null;
-      start = Date.now();
-    }
-
-    tray.setTitle(currentTimeFormatted);
+    tray.setTitle(" " + currentTimeFormatted);
     if (mb && mb.window && mb.window.webContents) {
       mb.window.webContents.send("timer-updated", {
         time: currentTimeFormatted,
@@ -62,37 +91,28 @@ const startTimer = (tray, mb) => {
         circleDashArray: newDashArraySize,
       });
     }
+
+    if (time < 1) {
+      position + 1 < intervals.length ? position++ : (position = 0);
+      time = intervals[position];
+      previousDelta = null;
+      previousPosition = position;
+      start = Date.now();
+      clearInterval(intervalRef);
+      tray.setTitle(phases[position].toUpperCase());
+      setTimeout(() => {
+        intervalRef = startTimer(tray, mb);
+      }, 2000);
+    }
   }, 1000);
 };
 
 app.whenReady().then(() => {
-  const tray = new Tray(
-    !app.isPackaged
-      ? process.cwd() + "/clock-20px.png"
-      : process.resourcesPath + "/app/clock-20px.png"
-  );
+  mainWindow();
 
-  const mb = menubar({
-    tooltip: "20 minutes",
-    icon: "assets/clock-20px.png",
-    tray,
-    browserWindow: {
-      webPreferences: { nodeIntegration: true, contextIsolation: false },
-      alwaysOnTop: true,
-    },
-  });
-
-  mb.setOption("webPreferences.nodeIntegration", true);
-
-  mb.on("ready", () => {});
-
-  intervalRef = startTimer(tray, mb);
-
-  ipcMain.on("TOGGLE_TIMER", (_, data) => {
-    if (data === "paused") {
-      clearInterval(intervalRef);
-    } else {
-      intervalRef = startTimer(tray, mb);
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      mainWindow();
     }
   });
 });
